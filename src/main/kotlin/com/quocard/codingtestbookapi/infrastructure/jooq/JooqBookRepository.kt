@@ -15,7 +15,7 @@ class JooqBookRepository(
     private val dsl: DSLContext
 ) : BookRepository {
 
-    override fun save(book: Book): Book {
+    override fun save(book: Book, authorIds: List<Long>): Book {
         val id = dsl.insertInto(BOOKS)
             .set(BOOKS.TITLE, book.title)
             .set(BOOKS.PRICE, book.price)
@@ -23,6 +23,17 @@ class JooqBookRepository(
             .returning(BOOKS.ID)
             .fetchOne()
             ?.id
+
+        // book_authorsテーブルに著者と書籍の関連を保存
+        if (id != null && authorIds.isNotEmpty()) {
+            authorIds.forEach { authorId ->
+                dsl.insertInto(BOOK_AUTHORS)
+                    .set(BOOK_AUTHORS.BOOK_ID, id)
+                    .set(BOOK_AUTHORS.AUTHOR_ID, authorId)
+                    .onDuplicateKeyIgnore()
+                    .execute()
+            }
+        }
 
         return book.copy(id = id)
     }

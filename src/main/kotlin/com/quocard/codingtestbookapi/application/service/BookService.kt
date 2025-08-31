@@ -12,9 +12,9 @@ class BookService(private val bookRepository: BookRepository) {
     /**
      * 新規書籍追加
      */
-    fun createBook(title: String, price: BigDecimal, status: PublicationStatus): Book {
+    fun createBook(title: String, price: BigDecimal, status: PublicationStatus, authorIds: List<Long>): Book {
         val book = Book(id = null, title = title, price = price, status = status)
-        return bookRepository.save(book)
+        return bookRepository.save(book, authorIds)
     }
 
     /**

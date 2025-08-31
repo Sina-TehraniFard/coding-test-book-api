@@ -19,6 +19,7 @@ class BookController(
             title = request.title,
             price = request.price,
             status = request.status,
+            authorIds = request.authorIds
         )
         return ResponseEntity.ok(book)
     }
