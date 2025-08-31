@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.spring' version '1.9.25'
     id 'org.springframework.boot' version '3.5.5'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'nu.studer.jooq' version '9.0'
 }
 
 group = 'quocard.com'
@@ -28,6 +29,7 @@ dependencies {
     implementation 'org.flywaydb:flyway-database-postgresql'
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     runtimeOnly 'org.postgresql:postgresql'
+    jooqGenerator 'org.postgresql:postgresql'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -41,4 +43,41 @@ kotlin {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+jooq {
+    version.set('3.19.25')
+    configurations {
+        create("main") {
+            generateSchemaSourceOnCompilation.set(true)
+            generationTool {
+                logging = org.jooq.meta.jaxb.Logging.WARN
+                jdbc {
+                    driver = 'org.postgresql.Driver'
+                    url = 'jdbc:postgresql://localhost:5432/appdb'
+                    user = 'app'
+                    password = 'app'
+                }
+                generator {
+                    database {
+                        name = 'org.jooq.meta.postgres.PostgresDatabase'
+                        inputSchema = 'public'
+                    }
+                    target {
+                        packageName = 'com.quocard.generated.jooq'
+                        directory = "$buildDir/generated-src/jooq/main"
+                    }
+                    generate {
+                        daos = true
+                        pojos = true
+                        fluentSetters = true
+                    }
+                }
+            }
+        }
+    }
+}
+
+sourceSets {
+    main.java.srcDir("$buildDir/generated-src/jooq/main")
 }
