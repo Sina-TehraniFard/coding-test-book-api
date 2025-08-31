@@ -1,4 +1,4 @@
-package quocard.com.codingtestbookapi
+package com.quocard.codingtestbookapi
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
